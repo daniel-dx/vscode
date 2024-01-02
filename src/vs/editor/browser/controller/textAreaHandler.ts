@@ -23,7 +23,7 @@ import { WordCharacterClass, getMapForWordSeparators } from 'vs/editor/common/co
 import { Position } from 'vs/editor/common/core/position';
 import { Range } from 'vs/editor/common/core/range';
 import { Selection } from 'vs/editor/common/core/selection';
-import { ScrollType } from 'vs/editor/common/editorCommon';
+// import { ScrollType } from 'vs/editor/common/editorCommon';
 import { EndOfLinePreference } from 'vs/editor/common/model';
 import { RenderingContext, RestrictedRenderingContext, HorizontalPosition } from 'vs/editor/browser/view/renderingContext';
 import { ViewContext } from 'vs/editor/common/viewModel/viewContext';
@@ -357,90 +357,90 @@ export class TextAreaHandler extends ViewPart {
 
 		this._register(this._textAreaInput.onCompositionStart((e) => {
 
-			// The textarea might contain some content when composition starts.
-			//
-			// When we make the textarea visible, it always has a height of 1 line,
-			// so we don't need to worry too much about content on lines above or below
-			// the selection.
-			//
-			// However, the text on the current line needs to be made visible because
-			// some IME methods allow to move to other glyphs on the current line
-			// (by pressing arrow keys).
-			//
-			// (1) The textarea might contain only some parts of the current line,
-			// like the word before the selection. Also, the content inside the textarea
-			// can grow or shrink as composition occurs. We therefore anchor the textarea
-			// in terms of distance to a certain line start and line end.
-			//
-			// (2) Also, we should not make \t characters visible, because their rendering
-			// inside the <textarea> will not align nicely with our rendering. We therefore
-			// will hide (if necessary) some of the leading text on the current line.
+			// // The textarea might contain some content when composition starts.
+			// //
+			// // When we make the textarea visible, it always has a height of 1 line,
+			// // so we don't need to worry too much about content on lines above or below
+			// // the selection.
+			// //
+			// // However, the text on the current line needs to be made visible because
+			// // some IME methods allow to move to other glyphs on the current line
+			// // (by pressing arrow keys).
+			// //
+			// // (1) The textarea might contain only some parts of the current line,
+			// // like the word before the selection. Also, the content inside the textarea
+			// // can grow or shrink as composition occurs. We therefore anchor the textarea
+			// // in terms of distance to a certain line start and line end.
+			// //
+			// // (2) Also, we should not make \t characters visible, because their rendering
+			// // inside the <textarea> will not align nicely with our rendering. We therefore
+			// // will hide (if necessary) some of the leading text on the current line.
 
-			const ta = this.textArea.domNode;
-			const modelSelection = this._modelSelections[0];
+			// const ta = this.textArea.domNode;
+			// const modelSelection = this._modelSelections[0];
 
-			const { distanceToModelLineStart, widthOfHiddenTextBefore } = (() => {
-				// Find the text that is on the current line before the selection
-				const textBeforeSelection = ta.value.substring(0, Math.min(ta.selectionStart, ta.selectionEnd));
-				const lineFeedOffset1 = textBeforeSelection.lastIndexOf('\n');
-				const lineTextBeforeSelection = textBeforeSelection.substring(lineFeedOffset1 + 1);
+			// const { distanceToModelLineStart, widthOfHiddenTextBefore } = (() => {
+			// 	// Find the text that is on the current line before the selection
+			// 	const textBeforeSelection = ta.value.substring(0, Math.min(ta.selectionStart, ta.selectionEnd));
+			// 	const lineFeedOffset1 = textBeforeSelection.lastIndexOf('\n');
+			// 	const lineTextBeforeSelection = textBeforeSelection.substring(lineFeedOffset1 + 1);
 
-				// We now search to see if we should hide some part of it (if it contains \t)
-				const tabOffset1 = lineTextBeforeSelection.lastIndexOf('\t');
-				const desiredVisibleBeforeCharCount = lineTextBeforeSelection.length - tabOffset1 - 1;
-				const startModelPosition = modelSelection.getStartPosition();
-				const visibleBeforeCharCount = Math.min(startModelPosition.column - 1, desiredVisibleBeforeCharCount);
-				const distanceToModelLineStart = startModelPosition.column - 1 - visibleBeforeCharCount;
-				const hiddenLineTextBefore = lineTextBeforeSelection.substring(0, lineTextBeforeSelection.length - visibleBeforeCharCount);
-				const { tabSize } = this._context.viewModel.model.getOptions();
-				const widthOfHiddenTextBefore = measureText(this.textArea.domNode.ownerDocument, hiddenLineTextBefore, this._fontInfo, tabSize);
+			// 	// We now search to see if we should hide some part of it (if it contains \t)
+			// 	const tabOffset1 = lineTextBeforeSelection.lastIndexOf('\t');
+			// 	const desiredVisibleBeforeCharCount = lineTextBeforeSelection.length - tabOffset1 - 1;
+			// 	const startModelPosition = modelSelection.getStartPosition();
+			// 	const visibleBeforeCharCount = Math.min(startModelPosition.column - 1, desiredVisibleBeforeCharCount);
+			// 	const distanceToModelLineStart = startModelPosition.column - 1 - visibleBeforeCharCount;
+			// 	const hiddenLineTextBefore = lineTextBeforeSelection.substring(0, lineTextBeforeSelection.length - visibleBeforeCharCount);
+			// 	const { tabSize } = this._context.viewModel.model.getOptions();
+			// 	const widthOfHiddenTextBefore = measureText(this.textArea.domNode.ownerDocument, hiddenLineTextBefore, this._fontInfo, tabSize);
 
-				return { distanceToModelLineStart, widthOfHiddenTextBefore };
-			})();
+			// 	return { distanceToModelLineStart, widthOfHiddenTextBefore };
+			// })();
 
-			const { distanceToModelLineEnd } = (() => {
-				// Find the text that is on the current line after the selection
-				const textAfterSelection = ta.value.substring(Math.max(ta.selectionStart, ta.selectionEnd));
-				const lineFeedOffset2 = textAfterSelection.indexOf('\n');
-				const lineTextAfterSelection = lineFeedOffset2 === -1 ? textAfterSelection : textAfterSelection.substring(0, lineFeedOffset2);
+			// const { distanceToModelLineEnd } = (() => {
+			// 	// Find the text that is on the current line after the selection
+			// 	const textAfterSelection = ta.value.substring(Math.max(ta.selectionStart, ta.selectionEnd));
+			// 	const lineFeedOffset2 = textAfterSelection.indexOf('\n');
+			// 	const lineTextAfterSelection = lineFeedOffset2 === -1 ? textAfterSelection : textAfterSelection.substring(0, lineFeedOffset2);
 
-				const tabOffset2 = lineTextAfterSelection.indexOf('\t');
-				const desiredVisibleAfterCharCount = (tabOffset2 === -1 ? lineTextAfterSelection.length : lineTextAfterSelection.length - tabOffset2 - 1);
-				const endModelPosition = modelSelection.getEndPosition();
-				const visibleAfterCharCount = Math.min(this._context.viewModel.model.getLineMaxColumn(endModelPosition.lineNumber) - endModelPosition.column, desiredVisibleAfterCharCount);
-				const distanceToModelLineEnd = this._context.viewModel.model.getLineMaxColumn(endModelPosition.lineNumber) - endModelPosition.column - visibleAfterCharCount;
+			// 	const tabOffset2 = lineTextAfterSelection.indexOf('\t');
+			// 	const desiredVisibleAfterCharCount = (tabOffset2 === -1 ? lineTextAfterSelection.length : lineTextAfterSelection.length - tabOffset2 - 1);
+			// 	const endModelPosition = modelSelection.getEndPosition();
+			// 	const visibleAfterCharCount = Math.min(this._context.viewModel.model.getLineMaxColumn(endModelPosition.lineNumber) - endModelPosition.column, desiredVisibleAfterCharCount);
+			// 	const distanceToModelLineEnd = this._context.viewModel.model.getLineMaxColumn(endModelPosition.lineNumber) - endModelPosition.column - visibleAfterCharCount;
 
-				return { distanceToModelLineEnd };
-			})();
+			// 	return { distanceToModelLineEnd };
+			// })();
 
-			// Scroll to reveal the location in the editor where composition occurs
-			this._context.viewModel.revealRange(
-				'keyboard',
-				true,
-				Range.fromPositions(this._selections[0].getStartPosition()),
-				viewEvents.VerticalRevealType.Simple,
-				ScrollType.Immediate
-			);
+			// // Scroll to reveal the location in the editor where composition occurs
+			// this._context.viewModel.revealRange(
+			// 	'keyboard',
+			// 	true,
+			// 	Range.fromPositions(this._selections[0].getStartPosition()),
+			// 	viewEvents.VerticalRevealType.Simple,
+			// 	ScrollType.Immediate
+			// );
 
-			this._visibleTextArea = new VisibleTextAreaData(
-				this._context,
-				modelSelection.startLineNumber,
-				distanceToModelLineStart,
-				widthOfHiddenTextBefore,
-				distanceToModelLineEnd,
-			);
+			// this._visibleTextArea = new VisibleTextAreaData(
+			// 	this._context,
+			// 	modelSelection.startLineNumber,
+			// 	distanceToModelLineStart,
+			// 	widthOfHiddenTextBefore,
+			// 	distanceToModelLineEnd,
+			// );
 
-			// We turn off wrapping if the <textarea> becomes visible for composition
-			this.textArea.setAttribute('wrap', this._textAreaWrapping && !this._visibleTextArea ? 'on' : 'off');
+			// // We turn off wrapping if the <textarea> becomes visible for composition
+			// this.textArea.setAttribute('wrap', this._textAreaWrapping && !this._visibleTextArea ? 'on' : 'off');
 
-			this._visibleTextArea.prepareRender(this._visibleRangeProvider);
-			this._render();
+			// this._visibleTextArea.prepareRender(this._visibleRangeProvider);
+			// this._render();
 
-			// Show the textarea
-			this.textArea.setClassName(`inputarea ${MOUSE_CURSOR_TEXT_CSS_CLASS_NAME} ime-input`);
+			// // Show the textarea
+			// this.textArea.setClassName(`inputarea ${MOUSE_CURSOR_TEXT_CSS_CLASS_NAME} ime-input`);
 
-			this._viewController.compositionStart();
-			this._context.viewModel.onCompositionStart();
+			// this._viewController.compositionStart();
+			// this._context.viewModel.onCompositionStart();
 		}));
 
 		this._register(this._textAreaInput.onCompositionUpdate((e: ICompositionData) => {
@@ -929,28 +929,28 @@ interface IRenderData {
 	strikethrough?: boolean;
 }
 
-function measureText(targetDocument: Document, text: string, fontInfo: FontInfo, tabSize: number): number {
-	if (text.length === 0) {
-		return 0;
-	}
+// function measureText(targetDocument: Document, text: string, fontInfo: FontInfo, tabSize: number): number {
+// 	if (text.length === 0) {
+// 		return 0;
+// 	}
 
-	const container = targetDocument.createElement('div');
-	container.style.position = 'absolute';
-	container.style.top = '-50000px';
-	container.style.width = '50000px';
+// 	const container = targetDocument.createElement('div');
+// 	container.style.position = 'absolute';
+// 	container.style.top = '-50000px';
+// 	container.style.width = '50000px';
 
-	const regularDomNode = targetDocument.createElement('span');
-	applyFontInfo(regularDomNode, fontInfo);
-	regularDomNode.style.whiteSpace = 'pre'; // just like the textarea
-	regularDomNode.style.tabSize = `${tabSize * fontInfo.spaceWidth}px`; // just like the textarea
-	regularDomNode.append(text);
-	container.appendChild(regularDomNode);
+// 	const regularDomNode = targetDocument.createElement('span');
+// 	applyFontInfo(regularDomNode, fontInfo);
+// 	regularDomNode.style.whiteSpace = 'pre'; // just like the textarea
+// 	regularDomNode.style.tabSize = `${tabSize * fontInfo.spaceWidth}px`; // just like the textarea
+// 	regularDomNode.append(text);
+// 	container.appendChild(regularDomNode);
 
-	targetDocument.body.appendChild(container);
+// 	targetDocument.body.appendChild(container);
 
-	const res = regularDomNode.offsetWidth;
+// 	const res = regularDomNode.offsetWidth;
 
-	targetDocument.body.removeChild(container);
+// 	targetDocument.body.removeChild(container);
 
-	return res;
-}
+// 	return res;
+// }
